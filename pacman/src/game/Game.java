@@ -1,14 +1,17 @@
 package game;
 
 import game.objects.creatures.Player;
+import game.objects.creatures.enemy.ChasingEnemy;
+import game.objects.creatures.enemy.CuttingEnemy;
+import game.objects.creatures.enemy.RandomEnemy;
+import game.objects.creatures.enemy.Enemy;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.*; // Swing ist ein Toolkit für die Erstellung von GUIs
+import java.awt.*; // Erstellung von GUIs und grundlegende Grafikoperationen (Abstract Window Toolkit), Swing baut darauf auf
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+
 public class Game extends JFrame {
     private final Display display;
 
@@ -18,13 +21,21 @@ public class Game extends JFrame {
 
     private boolean won;
 
+    private final Enemy[] enemies;
+
     public Game() {
-        super("game.Game");
+        super("Game");
 
         display = new Display(this);
         map = new GameMap(40);
         player = new Player(this, 13.5, 10.5, 0.375, 0.07);
         addKeyListener(player);
+
+        enemies = new Enemy[] {
+                new ChasingEnemy(this, player, 12.5, 8.5, 0.375, 0.06, new Color(0xED1212)), // #ed1212
+                new CuttingEnemy(this, player, 13.5, 8.5, 0.375, 0.065, new Color(0xF09F10)), // #fo9f10
+                new RandomEnemy(this, player, 14.5, 8.5, 0.375, 0.07, new Color(0x374F59))  // #374f59
+        };
 
         setSize(1096,759);
         setResizable(false); //Fenster kann nicht mehr vergrößert/verkleinert werden
@@ -47,10 +58,18 @@ public class Game extends JFrame {
         won = false;
         map.reset();
         player.reset();
+        for (Enemy enemy : enemies) {
+            enemy.reset();
+        }
     }
 
     public void win() {
         won = true;
+    }
+
+    public void lose() {
+        JOptionPane.showMessageDialog(null, "Game Over!");
+        reset();
     }
 
     private void tick() {
@@ -59,24 +78,34 @@ public class Game extends JFrame {
             reset();
         }
         player.tick();
+        for (Enemy enemy : enemies) {
+            enemy.tick();
+        }
     }
 
     public void render(Graphics2D g2) {
         g2.setColor(Color.BLACK);
         g2.fillRect(0, 0, getWidth(), getHeight());
 
-        map.render(g2, map.getTileSize());
-        player.render(g2, map.getTileSize());
+        int tileSize = map.getTileSize();
+
+        map.render(g2, tileSize);
+        player.render(g2, tileSize);
+        for (Enemy enemy : enemies) {
+            enemy.render(g2, tileSize);
+        }
     }
 
     public GameMap getMap() {
         return map;
     }
 
+    public Enemy[] getEnemies() {
+        return enemies;
+    }
+
     public static void main(String[] args) {
         new Game();
     }
-
-
 }
 

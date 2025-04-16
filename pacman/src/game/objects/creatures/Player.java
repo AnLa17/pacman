@@ -1,6 +1,7 @@
 package game.objects.creatures;
 
 import game.Game;
+import game.objects.creatures.enemy.Enemy;
 import game.objects.tiles.Air;
 import game.objects.tiles.Dot;
 
@@ -34,6 +35,13 @@ public class Player extends Creature implements KeyListener {
     }
 
     @Override
+    protected void tickPreferredDirection() {
+        for (Enemy enemy : game.getEnemies()) {
+            enemy.tickPreferredDirection();
+        }
+    }
+
+    @Override
     public void tick() {
         super.tick();
         tickDotCollision();
@@ -49,6 +57,20 @@ public class Player extends Creature implements KeyListener {
 
         g.setColor(color);
         g.fill(new Ellipse2D.Double(centerXOnScreen - radiusOnScreen, centerYOnScreen - radiusOnScreen, diameterOnScreen, diameterOnScreen));
+
+        Enemy closestEnemy = null;
+        double closestSqDistance = Double.MAX_VALUE;
+        for (Enemy enemy : game.getEnemies()) {
+            double difX = enemy.centerX - centerX;
+            double difY = enemy.centerY - centerY;
+            double sqDistance = difX * difX + difY * difY;
+            if (sqDistance < closestSqDistance) {
+                closestEnemy = enemy;
+                closestSqDistance = sqDistance;
+            }
+        }
+        renderEyes(g, centerXOnScreen, centerYOnScreen, radiusOnScreen, closestEnemy.centerX, closestEnemy.centerY);
+
     }
 
     @Override

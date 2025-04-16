@@ -103,7 +103,4 @@ public class GameMap extends GameObject {
     public void setTile(int x, int y, Tile tile) {
         tiles[y][x] = tile;
     }
-
-
-
 }

@@ -5,6 +5,7 @@ import game.GameMap;
 import game.objects.GameObject;
 
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
 
 public abstract class Creature extends GameObject {
     protected final Game game;
@@ -114,6 +115,30 @@ public abstract class Creature extends GameObject {
         tickWallCollisions();
     }
 
+    protected void renderEyes(Graphics2D g, double centerXonScreen, double centerYOnScreen, double radiusOnScreen, double aimX, double aimY) {
+        double eyeRad = radiusOnScreen / 3.0;
+        double eyeCenterY = centerYOnScreen - radiusOnScreen / 3.0;
+        double leftEyeCenterX = centerXonScreen - radiusOnScreen / 2.0;
+        double rightEyeCenterX = centerXonScreen + radiusOnScreen / 2.0;
+
+        g.setColor(Color.WHITE);
+        g.fill(new Ellipse2D.Double(leftEyeCenterX - eyeRad, eyeCenterY - eyeRad, eyeRad * 2.0, eyeRad * 2.0));
+        g.fill(new Ellipse2D.Double(rightEyeCenterX - eyeRad, eyeCenterY - eyeRad, eyeRad * 2.0, eyeRad * 2.0));
+
+        double dx = aimX - centerX;
+        double dy = aimY - centerY;
+        double length = Math.sqrt(dx * dx + dy * dy);
+        if (length > 0) {
+            dx /= length;
+            dy /= length;
+        }
+
+        double pupilY = eyeCenterY - eyeRad / 2.0 + dy * 0.4 * eyeRad;
+
+        g.setColor(Color.BLACK);
+        g.fill(new Ellipse2D.Double(leftEyeCenterX + dx * 0.4 * eyeRad - eyeRad / 2.0, pupilY, eyeRad, eyeRad));
+        g.fill(new Ellipse2D.Double(rightEyeCenterX + dx * 0.4 * eyeRad - eyeRad / 2.0, pupilY, eyeRad, eyeRad));
+    }
 
 
     public double getCenterX() {
@@ -126,5 +151,13 @@ public abstract class Creature extends GameObject {
 
     public double getRadius() {
         return radius;
+    }
+
+   public int getMovingDirectionX() {
+        return movingDirectionX;
+    }
+
+    public int getMovingDirectionY() {
+        return movingDirectionY;
     }
 }
